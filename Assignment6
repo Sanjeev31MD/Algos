@@ -1,1 +1,217 @@
+1. https://leetcode.com/problems/subtree-of-another-tree/
 
+
+public bool IsSubtree(TreeNode s, TreeNode t) {
+     
+        if(s == null){
+            return false;
+        }
+        
+        
+        findMatch(s,t);
+        
+        foreach(TreeNode curNode in treenodes){
+            bool ret = getMatch(curNode, t);
+            if(ret == true){
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    
+    public bool getMatch(TreeNode node, TreeNode match){
+      
+        if(node == null && match == null){
+            return true;
+        }
+        
+        if(node == null || match == null){
+            return false;
+        }
+        
+        if(node.val != match.val){
+            return false;
+        }
+        
+      return getMatch(node.left,match.left) && getMatch(node.right, match.right);
+        
+    }
+    
+    
+    public List<TreeNode> treenodes = new List<TreeNode>();
+    
+    public void findMatch(TreeNode node, TreeNode match){
+        
+        if(node == null){
+            return;
+        }
+        
+        if(node.val == match.val){
+            treenodes.Add(node); 
+            
+        }
+        
+        findMatch(node.left, match);
+        findMatch(node.right, match);
+
+        
+    }
+
+
+2. https://leetcode.com/problems/asteroid-collision/
+
+ public int[] AsteroidCollision(int[] asteroids) {
+    
+        Stack<int> stacks = new Stack<int>();
+        int i = 0;
+        while(i < asteroids.Length){
+            
+            if(asteroids[i]> 0){
+                stacks.Push(asteroids[i]);
+                i++;
+                continue;                
+            }else{
+                
+                int curabs = Math.Abs(asteroids[i]);
+                
+                if(stacks.Count > 0){
+                    int lastVal = stacks.Peek();
+                    if(lastVal > 0){
+                        if(curabs > lastVal){
+                            stacks.Pop();
+                            continue;
+                        }else if(curabs < lastVal){
+                            i++;
+                        }else{
+                            stacks.Pop();
+                            i++;
+                        }        
+                    }else{
+                    stacks.Push(asteroids[i]);
+                    i++;
+                    continue;
+                }
+                      
+                }else{
+                    stacks.Push(asteroids[i]);
+                    i++;
+                    continue;
+                }
+                
+            }
+            
+            
+        }
+            
+        List<int> li = new List<int>();
+        
+        
+        while(stacks.Count > 0){
+            int vaal = stacks.Pop();
+            li.Add(vaal);
+        }
+        
+        li.Reverse();
+        
+        return li.ToArray();
+    }
+
+3. https://leetcode.com/problems/3sum/
+
+public List<List<Integer>> threeSum(int[] nums) {
+        HashMap<Integer,Integer> counters = new HashMap<Integer, Integer>();
+        Set<List<Integer>> retVal = new HashSet<List<Integer>>();
+        List<List<Integer>> rets = new ArrayList<List<Integer>>();
+        for(int i = 0; i < nums.length; i++){
+            if(counters.containsKey(nums[i])){
+                counters.put(nums[i], counters.get(nums[i]) + 1);
+            }else{
+                counters.put(nums[i], 1);   
+            }
+        }
+        
+        for(int i = 0; i < nums.length - 1; i++){
+            for(int j = i +1; j < nums.length; j++ ){
+                int rem = 0 - (nums[i] + nums[j]);
+                int count = 1;
+                
+                  if(nums[i] == rem){
+                        count++;
+                    }
+                   if(nums[j] == rem){
+                        count ++;
+                    }
+                
+                if( counters.containsKey(0 - (nums[i] + nums[j])) && counters.get(rem) >= count ){                  
+                    
+                    List<Integer> ret = new ArrayList<Integer>();
+                    ret.add(nums[i]);
+                    ret.add(nums[j]);
+                    ret.add(0 - (nums[i] + nums[j]));
+                                        
+                    Collections.sort(ret);
+                    
+                    retVal.add(ret);
+                    
+                }
+                
+            }
+        }
+        
+        rets.addAll(retVal);
+        return rets;
+        
+    }
+
+4. https://leetcode.com/problems/generate-parentheses/
+
+  public  IList<string> GenerateParenthesis(int n)
+        {
+            reGenerateParenthesis(n, n, "");
+            return s;
+        }
+
+        public  List<string> s = new List<string>();
+        public  void reGenerateParenthesis(int open, int cls, string paran)
+        {
+            if (cls == 0 && open == 0)
+            {
+                s.Add(paran);
+            }
+
+            if (open > 0) {
+                reGenerateParenthesis(open - 1, cls, paran + "(");
+            }
+
+            if (cls > open) {
+                reGenerateParenthesis(open, cls - 1, paran + ")");
+            }
+
+        }
+
+5. https://leetcode.com/problems/reverse-nodes-in-k-group/
+
+public ListNode ReverseKGroup(ListNode head, int k)
+    {
+        if (head == null)
+            return null;
+        ListNode curr = head;
+        ListNode prev = null;
+        
+        for (int i = 0; i < k; i++)
+        {
+            if (curr == null)
+            {
+                return ReverseKGroup(prev, i);
+            }
+            ListNode tmp = curr.next;
+            curr.next = prev;
+            prev = curr;
+            curr = tmp;
+        }
+        
+        head.next = ReverseKGroup(curr, k);
+        return prev;
+    }
