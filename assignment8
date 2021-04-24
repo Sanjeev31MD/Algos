@@ -1,0 +1,186 @@
+// 1 Given a graph and a source vertex in the graph, find shortest paths from source to all vertices in the given graph.
+class DijkstrasAlgorithm {
+	static final int V = 9;
+	static int minDistance(int dist[], Boolean sptSet[])
+	{
+		int min = Integer.MAX_VALUE, min_index = -1;
+
+		for (int v = 0; v < V; v++)
+			if (sptSet[v] == false && dist[v] <= min) {
+				min = dist[v];
+				min_index = v;
+			}
+
+		return min_index;
+	}
+
+	static void printSolution(int dist[])
+	{
+		System.out.println("Vertex \t\t Distance from Source");
+		for (int i = 0; i < V; i++)
+			System.out.println(i + " \t\t " + dist[i]);
+	}
+
+	static void dijkstra(int graph[][], int src)
+	{
+		int dist[] = new int[V]; 
+		Boolean sptSet[] = new Boolean[V];
+
+		for (int i = 0; i < V; i++) {
+			dist[i] = Integer.MAX_VALUE;
+			sptSet[i] = false;
+		}
+
+		dist[src] = 0;
+
+		for (int count = 0; count < V - 1; count++) {
+			int u = minDistance(dist, sptSet);
+			sptSet[u] = true;
+			for (int v = 0; v < V; v++)
+				if (!sptSet[v] && graph[u][v] != 0 && dist[u] != Integer.MAX_VALUE && dist[u] + graph[u][v] < dist[v])
+					dist[v] = dist[u] + graph[u][v];
+		}
+
+		printSolution(dist);
+	}
+
+	public static void main(String[] args)
+	{
+		int graph[][] = new int[][] { { 0, 4, 0, 0, 0, 0, 0, 8, 0 },
+									{ 4, 0, 8, 0, 0, 0, 0, 11, 0 },
+									{ 0, 8, 0, 7, 0, 4, 0, 0, 2 },
+									{ 0, 0, 7, 0, 9, 14, 0, 0, 0 },
+									{ 0, 0, 0, 9, 0, 10, 0, 0, 0 },
+									{ 0, 0, 4, 14, 10, 0, 2, 0, 0 },
+									{ 0, 0, 0, 0, 0, 2, 0, 1, 6 },
+									{ 8, 11, 0, 0, 0, 0, 1, 0, 7 },
+									{ 0, 0, 2, 0, 0, 0, 6, 7, 0 } };
+		dijkstra(graph, 0);
+	}
+}
+
+//2 https://leetcode.com/problems/course-schedule/ 
+
+public class CourseSchedule {
+    public static boolean canFinish(int numCourses, int[][] prerequisites) {
+        Map<Integer, List<Integer>> dict = new HashMap<>();
+        int[] indegree = new int[numCourses];
+        for(int[] prereq: prerequisites) {
+            if(dict.containsKey(prereq[1])) {
+                dict.get(prereq[1]).add(prereq[0]);
+            }
+            else {
+                List<Integer> courses = new LinkedList<>();
+                courses.add(prereq[0]);
+                dict.put(prereq[1], courses);
+            }
+            indegree[prereq[0]]++;
+        }
+        Queue<Integer> queue = new LinkedList<>();
+        for(int i = 0; i < numCourses; i++)
+            if(indegree[i] == 0)
+                queue.add(i);
+        int count = 0;
+        while(!queue.isEmpty()) {
+            Integer node = queue.peek();
+            queue.poll();
+            count++;
+            if(dict.containsKey(node)) {
+                for(Integer dependency: dict.get(node)) {
+                    indegree[dependency]--;
+                    if(indegree[dependency] == 0)
+                        queue.add(dependency);
+                }
+            }
+        }
+        return count == numCourses;
+      }
+
+      public static void main(String[] args) {
+        int numCourses = 2;
+        int[][] prerequisites = {{1,0},{0,1}};
+        if(canFinish(numCourses, prerequisites))
+            System.out.println("Courses can be finished!");
+        else
+            System.out.println("Courses can't be finished!");
+      }
+}
+
+//3 https://leetcode.com/problems/word-ladder/
+
+public class WordLadder {
+    public static int ladderLength(String beginWord, String endWord, List<String> wordList) {
+        Set<String> words = new HashSet<>(wordList);
+        Queue<String> queue = new LinkedList<>();
+        queue.add(beginWord);
+        int count = 1; 
+        while(!queue.isEmpty()) {
+            int size = queue.size();
+            for(int i=0;i<size;i++) {
+                char[] current = queue.poll().toCharArray();
+                for(int j=0;j<current.length;j++) {
+                    char temp = current[j];
+                    for(char c='a';c<='z';c++) {
+                        current[j] = c;
+                        String next = new String(current);
+                        if(words.contains(next)) {
+                            if(next.equals(endWord))
+                                return count+1;
+                            words.remove(next);
+                            queue.add(next);
+                        }
+                    }
+                    current[j] = temp;
+                }
+            }
+            count++;
+        }
+        return 0;
+    }
+
+    public static void main(String args[]) {
+        String beginWord = "hit";
+        String endWord = "cog";
+        String[] words = {"hot","dot","dog","lot","log","cog"};
+        List<String> wordList = new ArrayList<>(Arrays.asList(words));
+        System.out.println("Number of words in the shortest transformation sequence from beginWord to endWord is " + ladderLength(beginWord, endWord, wordList));
+    }
+}
+
+//4 https://leetcode.com/problems/number-of-islands/
+
+public class NumberOfIslands {
+    public static int numIslands(char[][] grid) {
+        if(grid == null || grid.length == 0) {
+            return 0;
+        }
+        int islandCount = 0;
+        for(int i =0;i<grid.length;i++) {
+            for(int j=0;j<grid[i].length;j++) {
+                if(grid[i][j] == '1') {
+                    islandCount += calculateIsland(grid, i, j);
+                }
+            }
+        }
+        return islandCount;
+    }
+    
+    public static int calculateIsland(char[][] grid, int i, int j) {
+        if(i<0 || i>grid.length-1 || j<0 || j>grid[0].length-1 || grid[i][j] == '0') {
+            return 0;
+        }
+        grid[i][j] = '0';
+        
+        calculateIsland(grid, i-1, j);
+        calculateIsland(grid, i, j-1);
+        calculateIsland(grid, i+1, j);
+        calculateIsland(grid, i, j+1);
+        
+        return 1;
+    }
+
+    public static void main(String args[]) {
+        char[][] grid = {{'1','1','1','1','0'},{'1','1','0','1','0'},{'1','1','0','0','0'},{'0','0','0','0','0'}};
+        System.out.println("The numsber of islands is "+numIslands(grid));
+    }
+}
